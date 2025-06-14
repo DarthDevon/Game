@@ -11,10 +11,30 @@ let playing = false;
 
 let items = [];
 function clearItems() {
-  items.forEach(i => i.dispose());
-  items = [];
+  disposeAll(items);
+}
+function disposeAll(arr) {
+  arr.forEach(m => m.dispose());
+  arr.length = 0;
 }
 let itemSpawns = [];
+function createMap() {
+  const size = 20;
+  for (let i = 0; i < 3; i++) {
+    const floor = BABYLON.MeshBuilder.CreateBox("floor"+i, {width:size, depth:size, height:0.5}, scene);
+    floor.position = new BABYLON.Vector3(0, i*3, 0);
+  }
+  for (let i = 0; i < 3; i++) {
+    const ramp = BABYLON.MeshBuilder.CreateBox("ramp"+i, {width:2, depth:4, height:0.5}, scene);
+    ramp.position = new BABYLON.Vector3(size/2-1, i*3+0.25, -size/2+2);
+    ramp.rotation.z = Math.PI/4;
+  }
+  itemSpawns = [
+    new BABYLON.Vector3(5,0.5,5),
+    new BABYLON.Vector3(-5,0.5,-5),
+    new BABYLON.Vector3(0,3.5,0)
+  ];
+}
 function createScene() {
   scene = new BABYLON.Scene(engine);
   scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
@@ -53,24 +73,6 @@ function createScene() {
   };
 
   return scene;
-function createMap() {
-  const size = 20;
-  for (let i = 0; i < 3; i++) {
-    const floor = BABYLON.MeshBuilder.CreateBox("floor"+i, {width:size, depth:size, height:0.5}, scene);
-    floor.position = new BABYLON.Vector3(0, i*3, 0);
-  }
-  for (let i = 0; i < 3; i++) {
-    const ramp = BABYLON.MeshBuilder.CreateBox("ramp"+i, {width:2, depth:4, height:0.5}, scene);
-    ramp.position = new BABYLON.Vector3(size/2-1, i*3+0.25, -size/2+2);
-    ramp.rotation.z = Math.PI/4;
-  }
-  itemSpawns = [
-    new BABYLON.Vector3(5,0.5,5),
-    new BABYLON.Vector3(-5,0.5,-5),
-    new BABYLON.Vector3(0,3.5,0)
-  ];
-}
-
 }
 
 function spawnBot() {
@@ -189,7 +191,7 @@ function updateUI() {
   document.getElementById('ammoCount').innerText = player.ammo + '/' + player.reserve;
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+function init() {
   engine = new BABYLON.Engine(canvas, true);
   scene = createScene();
   engine.runRenderLoop(() => {
@@ -235,11 +237,17 @@ window.addEventListener('DOMContentLoaded', () => {
     player.reserve = 24;
     updateUI();
     wave = 0;
-    enemies.forEach(e => e.dispose());
-    enemies = [];
+    disposeAll(enemies);
     clearItems();
 
     playing = true;
     startWave();
   });
-});
+
+}
+
+if (document.readyState !== 'loading') {
+  init();
+} else {
+  window.addEventListener('DOMContentLoaded', init);
+}
