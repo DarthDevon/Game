@@ -3,8 +3,6 @@ let engine, scene, camera;
 let player = { health: 100, ammo: 12, reserve: 24 };
 let wave = 0;
 let enemies = [];
-    items.forEach(i => i.dispose());
-    items = [];
 
 let activeEnemies = 0;
 let totalEnemies = 0;
@@ -12,6 +10,10 @@ let maxActive = 0;
 let playing = false;
 
 let items = [];
+function clearItems() {
+  items.forEach(i => i.dispose());
+  items = [];
+}
 let itemSpawns = [];
 function createScene() {
   scene = new BABYLON.Scene(engine);
@@ -235,8 +237,7 @@ window.addEventListener('DOMContentLoaded', () => {
     wave = 0;
     enemies.forEach(e => e.dispose());
     enemies = [];
-    items.forEach(i => i.dispose());
-    items = [];
+    clearItems();
 
     playing = true;
     startWave();
